@@ -53,7 +53,7 @@ def padd_to_len_audio_file(pad_ms: int = 2000, path: str = ""):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
 # Load the trained model
-#model_path = "/goodModel.pth"
+model_path = "../goodModel.pth"
 model = LocalAlexNet(11)
 model.load_state_dict(torch.load(model_path))
 model.eval()
@@ -103,6 +103,15 @@ def record_audio():
 
     stream.stop_stream()
 
+    if not os.path.exists("my_word.wav"):
+        with wave.open("my_word.wav", "wb") as wf:
+            wf.setnchannels(1)  # mono
+            wf.setsampwidth(2)  # number of bytes per sample
+            wf.setframerate(44100)  # samples per second
+            wf.writeframes(b'')
+
+
+
     wf = wave.open("my_word.wav", "wb")
     wf.setnchannels(CHANNELS)
     wf.setsampwidth(p.get_sample_size(FORMAT))
@@ -110,10 +119,10 @@ def record_audio():
     wf.writeframes(b''.join(frames))
     wf.close()
 
-    padd_to_len_audio_file(2000, "my_word_0.wav")
+    padd_to_len_audio_file(2000, "my_word.wav")
 
 
-    y, sr = librosa.load("my_word_0.wav")
+    y, sr = librosa.load("my_word.wav")
     generate_mel(waveform=y, sample_rate=sr)
     img = Image.open("myWord.png")
     trans = transforms.Compose([

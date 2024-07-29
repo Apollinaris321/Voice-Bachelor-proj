@@ -36,7 +36,7 @@ def scale_minmax(X, min=0.0, max=1.0):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
 # Load the trained model
-model_path = "../goodModel.pth"
+model_path = "/goodModel.pth"
 model = LocalAlexNet(11)
 model.load_state_dict(torch.load(model_path))
 model.eval()
