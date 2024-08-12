@@ -26,7 +26,7 @@ def generate_word_main(word):
     # Filter the items to keep only the directories (folders)
     voice_names = [item for item in items if os.path.isdir(os.path.join(voice_path, item))]
 
-    for i, voice in enumerate(voice_names[0:4]):
+    for i, voice in enumerate(voice_names):
         clips_paths = [
             f"{voice_path}/{voice}/snippet0.wav",
             f"{voice_path}/{voice}/snippet1.wav",
@@ -41,7 +41,7 @@ def generate_word_main(word):
         )
 
         pcm_audio = pcm_audio.squeeze(0)
-        audio_save_path = f'{results_audio_path}/{voice}_{word}_0.wav'
+        audio_save_path = f'{results_audio_path}/{i}_{word}_0.wav'
         # resample to 441 khz
         new_noise = torchaudio.functional.resample(waveform=pcm_audio, orig_freq=22050,
                                                    new_freq=44100, )

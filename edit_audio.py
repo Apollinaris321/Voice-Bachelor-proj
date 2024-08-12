@@ -8,6 +8,7 @@ import librosa
 import numpy as np
 import wave
 import glob
+import tqdm
 
 import matplotlib.pyplot as plt
 
@@ -45,28 +46,28 @@ def load_samples(audio_path, words):
 # do this in pydub as well
 def add_random_padding(audio, amount):
     new_audio = []
-    for i, (waveform, sample_rate, voice, word) in enumerate(audio):
+    for waveform, sample_rate, voice, word in tqdm.tqdm(audio, desc="Adding Random Padding"):
         if len(waveform[0]) > sample_rate * 2:
             print("error! file too long!")
+        else:
+            for i in range(0, amount):
+                padding = sample_rate * 2 - len(waveform[0])
+                index = random.randint(0, padding)
+                before = torch.zeros(index)
+                after = torch.zeros(padding - index)
 
-        for i in range(0, amount):
-            padding = sample_rate * 2 - len(waveform[0])
-            index = random.randint(0, padding)
-            before = torch.zeros(index)
-            after = torch.zeros(padding - index)
+                transformed_waveform = torch.cat((before, waveform[0], after), 0)
+                transformed_waveform = transformed_waveform.unsqueeze(0)
 
-            transformed_waveform = torch.cat((before, waveform[0], after), 0)
-            transformed_waveform = transformed_waveform.unsqueeze(0)
-
-            arr = torchaudio.functional.resample(transformed_waveform, orig_freq=sample_rate, new_freq=22050)
-            new_audio.append([arr, sample_rate, voice, word])
+                arr = torchaudio.functional.resample(transformed_waveform, orig_freq=sample_rate, new_freq=22050)
+                new_audio.append([arr, sample_rate, voice, word])
     return new_audio
 
 
 def add_noise(audio):
     noise_path = "C:/Users/blura/Desktop/Voice Bachelor proj/noise"
     new_audio = []
-    for waveform, sample_rate, voice, word in audio:
+    for waveform, sample_rate, voice, word in tqdm.tqdm(audio, desc="Adding noise"):
         for i, filename in enumerate(os.listdir(noise_path)):
             noise_wav, noise_sample = torchaudio.load(f"{noise_path}/{filename}")
             noise_wav = torch.mean(noise_wav, dim=0, keepdim=True)
@@ -94,7 +95,7 @@ def trim(audio):
 
 
 def generate_mel(audio, results_path):
-    for i, (waveform, sample_rate, voice, word) in enumerate(audio):
+    for i, (waveform, sample_rate, voice, word) in enumerate(tqdm.tqdm(audio, desc="generating Mels")):
         sr = sample_rate
         y = np.array(waveform)
         # fmax highest frequency (in Hz)
@@ -153,7 +154,8 @@ def edit_audio_main(word):
 
     create_path(results_path)
     words = []
-    words.append(word)
+    if word is not "":
+        words.append(word)
 
     # give the results path where all audio is stored and only pick the words that are mentioned in the array
     audio = load_samples(path, words)
@@ -166,7 +168,7 @@ def edit_audio_main(word):
     print("fin padding")
 
     #audio = add_noise(audio)
-    #print("fin add noise")
+    print("fin add noise")
 
     trim(audio)
     print("fin trim")
