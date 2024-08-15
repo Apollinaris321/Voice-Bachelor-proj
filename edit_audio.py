@@ -14,9 +14,12 @@ import matplotlib.pyplot as plt
 
 
 def create_path(path):
-    if not os.path.exists(path):
+    ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    print(ROOT_DIR)
+    new_path = os.path.join(ROOT_DIR, path)
+    if not os.path.exists(new_path):
         os.umask(0)
-        os.makedirs(path)
+        os.makedirs(new_path)
         print(f"Directory '{path}' created successfully.")
     else:
         print(f"Directory '{path}' already exists.")
@@ -43,6 +46,21 @@ def load_samples(audio_path, words):
     return audio
 
 
+def load_word(word):
+    project_root = os.path.dirname(os.path.abspath(__file__))  # This gets the current file's directory
+    parent_dir = os.path.dirname(project_root)
+    folder_path = os.path.join(parent_dir, 'results')
+    word_path = os.path.join(folder_path, word)
+
+    audio = []
+    if os.path.exists(word_path):
+        for file in os.listdir(word_path):
+            voice, word, _ = file.split("_")
+            waveform, samplerate = torchaudio.load(word_path + "\\" + file)
+            audio.append([waveform, samplerate, voice, word])
+        return audio
+
+
 # do this in pydub as well
 def add_random_padding(audio, amount):
     new_audio = []
@@ -65,7 +83,9 @@ def add_random_padding(audio, amount):
 
 
 def add_noise(audio):
-    noise_path = "C:/Users/blura/Desktop/Voice Bachelor proj/noise"
+    #noise_path = "C:/Users/blura/Desktop/Voice Bachelor proj/noise"
+    #TODO
+    noise_path = ""
     new_audio = []
     for waveform, sample_rate, voice, word in tqdm.tqdm(audio, desc="Adding noise"):
         for i, filename in enumerate(os.listdir(noise_path)):
@@ -126,15 +146,8 @@ def scale_minmax(X, min=0.0, max=1.0):
 
 
 
-def edit_audio_main(word):
-    #TODO path und results_path müssen übergeben werden
-    # der erste path kann gleich bleiben weil die wörter einfach nur hinzugefügt werden
-    path = r'C:\Users\blura\Desktop\Voice Bachelor proj\results'
-    path_base = r'C:\Users\blura\Desktop\Voice Bachelor proj\base_vocabulary'
-    #der path kann wegen des geringen aufwands temp sein und immer wieder gelöscht oder überschrieben werden oder sogar
-    # gar nicht erst gespeichert werden sondern sofort ans training übergeben werden
-
-    results_path = "C:/Users/blura/Desktop/Voice Bachelor proj/image_dataset"
+def edit_audio_main(words):
+    #TODO es sollte in der main main ein init geben wo die ganzen folder einmal erstellt werden
 
     # Specify the path to the folder containing the images
     ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -142,6 +155,8 @@ def edit_audio_main(word):
     # Define the relative path to the folder inside your project
     folder_name = 'image_dataset'
     folder_path = os.path.join(ROOT_DIR, folder_name)
+
+    create_path('image_dataset')
 
     # List all files in the folder
     for filename in os.listdir(folder_path):
@@ -152,16 +167,11 @@ def edit_audio_main(word):
         except Exception as e:
             print(f"Failed to delete {file_path}. Reason: {e}")
 
-    create_path(results_path)
-    words = []
-    if word is not "":
-        words.append(word)
 
-    # give the results path where all audio is stored and only pick the words that are mentioned in the array
-    audio = load_samples(path, words)
-    audio_base_vocab = load_base_vocab(path_base)
+    audio = []
+    for word in words:
+        audio.extend(load_word(word))
 
-    audio.extend(audio_base_vocab)
     print("fin loading")
 
     audio = add_random_padding(audio, 30)
@@ -173,5 +183,5 @@ def edit_audio_main(word):
     trim(audio)
     print("fin trim")
 
-    generate_mel(audio, results_path)
+    generate_mel(audio, folder_path)
     print("fin mel")

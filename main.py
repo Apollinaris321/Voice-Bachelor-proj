@@ -1,4 +1,4 @@
-from generate_word import generate_word_main
+from generate_word import gen_words_main
 
 from train_cnn import train_model_main
 from edit_audio import edit_audio_main
@@ -13,6 +13,8 @@ from Alex import LocalAlexNet
 from models.SimpleModel import SimpleNet
 from models.Net import Net2
 
+from torchinfo import summary
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="A simple program to print command-line parameters.")
@@ -24,7 +26,6 @@ if __name__ == '__main__':
     word = args.word
     word = ""
 
-    epochs = 20
 
     labels = [
         "ukraine",
@@ -37,18 +38,18 @@ if __name__ == '__main__':
         "europe",
         "peace",
         "tank",
-        "war"
+        "war",
     ]
 
     model = LocalAlexNet(len(labels))
 
-    #torch.save(labels, "labels.pth")
+    batch_size = 16
+    epochs = 3
+    #summary(model, input_size=(batch_size, 1, 128, 87))
 
-    #label_load = torch.load("labels.pth")
-    #print(label_load)
+    #gen_words_main(words=word, amount_of_voices=5)
+    #edit_audio_main(labels)
 
-    #generate_word_main(word)
-    #edit_audio_main(word)
     model = train_model_main(epochs, 1, labels, model)
     #validate_model(model)
 
