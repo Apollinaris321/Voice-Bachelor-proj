@@ -7,14 +7,44 @@ import tkinter as tk
 import pyaudio
 import wave
 
-from PIL import Image
 from pydub import AudioSegment
-from Alex import LocalAlexNet
+from code.models.Alex import LocalAlexNet
 from torchvision.transforms import transforms
 import numpy as np
 import librosa
 import librosa.display
-from models.SimpleModel import SimpleNet
+from tkinter import filedialog
+
+
+# juckt keinen das modell ist fest lad es einfach rein und fertig
+
+def load_labels():
+    global labels
+    file_path = filedialog.askopenfilename(
+        filetypes=[("All files", "*.*")],  # Filter by file type
+        title="Select a Text File"  # Dialog title
+    )
+    with open(file_path, "r") as labels:
+        labels = labels.read()
+        labels = labels.split(",")
+        labels.pop()
+        print(labels)
+        return labels
+
+
+def load_model():
+    global model
+    global labels
+    # Open the file dialog and allow the user to select a file
+    file_path = filedialog.askopenfilename(
+        filetypes=[("All files", "*.*")],  # Filter by file type
+        title="Select a Text File"  # Dialog title
+    )
+    model = LocalAlexNet(len(labels))
+    model.load_state_dict(torch.load(file_path))
+    model.eval()
+    return model
+
 
 def generate_mel():
     y, sr = librosa.load("my_word.wav")
@@ -134,7 +164,7 @@ def inference(img):
 
 
         # Print labels with their corresponding probabilities
-        print(f"predicted: {classes[predicted]}, prob: {outputs}")
+        print(f"predicted: {labels[predicted]}, prob: {outputs}")
 
 
 def check_recording():
@@ -143,30 +173,11 @@ def check_recording():
     inference(img)
 
 
-classes = [
-    "ukraine",
-    "germany",
-    "china",
-    "russia",
-    "sun",
-    "airplane",
-    "beer",
-    "europe",
-    "peace",
-    "tank",
-    "war",
-]
+labels = []
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
-# Load the trained model
-#model_path = "../goodModel.pth"
-model_path = "../generated_models/model__v0.0.pth"
-#model = LocalAlexNet(11)
-from models.Net import Net3
-model = Net3(len(classes))
-model.load_state_dict(torch.load(model_path))
-model.eval()
+model = ""
 
 # Set up the GUI
 root = tk.Tk()
@@ -175,4 +186,14 @@ root.geometry("500x200")
 
 record_button = tk.Button(root, text="Record", command=check_recording)
 record_button.pack()
+
+# Create a button that calls the load_file function when clicked
+load_model_btn = tk.Button(root, text="Load Model File", command=load_model)
+load_model_btn.pack(pady=20)
+
+# Create a button that calls the load_file function when clicked
+load_labels_button = tk.Button(root, text="Load Text File", command=load_labels)
+load_labels_button.pack(pady=20)
+
+
 root.mainloop()

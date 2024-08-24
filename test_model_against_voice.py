@@ -8,8 +8,6 @@ import numpy as np
 import librosa
 import librosa.display
 
-from Alex import LocalAlexNet
-
 
 def generate_mel(waveform, sample_rate):
     sr = sample_rate
@@ -51,8 +49,6 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device: ", device)
 # Load the trained model
 #model_path = "../generated_models/model__v2.0.pth"
-from models.Net import Net3
-from models.SimpleModel import SimpleNet
 #model = Net3(len(classes))
 #model = SimpleNet(12)
 #model = LocalAlexNet(len(classes))
