@@ -1,4 +1,5 @@
 import os
+from PIL import Image
 
 import numpy
 import skimage
@@ -8,13 +9,14 @@ import pyaudio
 import wave
 
 from pydub import AudioSegment
-from code.models.Alex import LocalAlexNet
 from torchvision.transforms import transforms
 import numpy as np
 import librosa
 import librosa.display
 from tkinter import filedialog
 
+from models.Alex import LocalAlexNet
+from models.Alex2 import LocalAlexNet2
 
 # juckt keinen das modell ist fest lad es einfach rein und fertig
 
@@ -170,6 +172,9 @@ def inference(img):
 def check_recording():
     record_audio()
     img = generate_mel()
+    #image = Image.fromarray(img)
+    #image.show()
+
     inference(img)
 
 

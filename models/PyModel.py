@@ -4,9 +4,9 @@ import torch.nn.functional as F
 
 
 class M5(nn.Module):
-    def __init__(self, n_input=1, n_output=35, stride=16, n_channel=32):
+    def __init__(self,classes=0, n_input=1, n_output=35, stride=16, n_channel=32):
         super().__init__()
-        self.conv1 = nn.Conv2d(n_input, n_channel, kernel_size=80, stride=stride)
+        self.conv1 = nn.Conv2d(n_input, n_channel, kernel_size=40, stride=stride)
         self.bn1 = nn.BatchNorm2d(n_channel)
         self.pool1 = nn.MaxPool2d(4)
         self.conv2 = nn.Conv2d(n_channel, n_channel, kernel_size=3)

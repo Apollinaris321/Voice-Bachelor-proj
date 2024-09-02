@@ -29,7 +29,7 @@ class CustomAlexNet(nn.Module):
             nn.Linear(in_features=64*14*14,out_features=1024),
             nn.ReLU(inplace=True),
             # 10 -> 10 classes
-            nn.Linear(in_features=1024, out_features=num_classes)
+            nn.Linear(in_features=1024, out_features=num_classes),
         )
 
     def forward(self, x):

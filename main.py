@@ -1,15 +1,17 @@
 from generate_word import gen_words_main
-
 from train_cnn import train_model_main
 from edit_audio import edit_audio_main
+
+from models.Alex import LocalAlexNet
+from models.Alex2 import LocalAlexNet2
+from models.PyModel import M5
+
 import os
 import shutil
-
-from code.models.Alex import LocalAlexNet
-
 from analyze_data import draw_graphs
 import tkinter as tk
 from tkinter import filedialog
+import torchinfo
 
 
 # Function to prompt the user for a file save location
@@ -43,7 +45,6 @@ def check_epoch_input(user_input):
 
 
 if __name__ == '__main__':
-
 
 
     print("Automatic Speech Recognition Builder")
@@ -98,7 +99,8 @@ if __name__ == '__main__':
     model = LocalAlexNet(len(word_list))
     batch_size = 64
     epochs = 8
-    #summary(model, input_size=(batch_size, 1, 128, 87))
+    torchinfo.summary(model, input_size=(batch_size, 1, 128, 87))
+    #57.000.000
 
     epoch_valid = False
     while not epoch_valid:

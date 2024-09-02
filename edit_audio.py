@@ -83,12 +83,14 @@ def add_random_padding(audio, amount):
 
 
 def add_noise(audio):
+    project_root = os.path.dirname(os.path.abspath(__file__))  # This gets the current file's directory
+    parent_dir = os.path.dirname(project_root)
+    noise_path = os.path.join(parent_dir, 'noise')
     #noise_path = "C:/Users/blura/Desktop/Voice Bachelor proj/noise"
     #TODO
-    noise_path = ""
     new_audio = []
     for waveform, sample_rate, voice, word in tqdm.tqdm(audio, desc="Adding noise"):
-        for i, filename in enumerate(os.listdir(noise_path)):
+        for i, filename in enumerate(os.listdir(noise_path)[0:5]):
             noise_wav, noise_sample = torchaudio.load(f"{noise_path}/{filename}")
             noise_wav = torch.mean(noise_wav, dim=0, keepdim=True)
             new_noise = torchaudio.functional.resample(waveform=noise_wav, orig_freq=noise_sample,
